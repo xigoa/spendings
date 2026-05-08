@@ -62,7 +62,9 @@
         let graficoInstancia = null; 
         let datosGlobales = null;
 
-        fetch('data.json')
+        // Añadimos la hora exacta en milisegundos a la URL
+        fetch('data.json?v=' + new Date().getTime())
+            
             .then(response => response.json())
             .then(data => {
                 datosGlobales = data;
