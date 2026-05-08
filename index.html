@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control de Gastos</title>
+    <title>Gastuak</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
@@ -42,7 +42,7 @@
 <body>
 
     <div class="contenedor-principal">
-        <h1>Control de Gastos Mensual</h1>
+        <h1>Gastuak</h1>
         
         <div class="contenedor-grafico">
             <div class="grafico-wrapper">
@@ -151,19 +151,19 @@
                     // Inyectar el HTML en la caja
                     document.getElementById('resumen').innerHTML = `
                         <div class="dato-caja">
-                            <span class="dato-titulo">Gasto Actual</span>
+                            <span class="dato-titulo">Egungo gastua</span>
                             <span class="dato-valor">${gastoActual.toFixed(2)} €</span>
                         </div>
                         <div class="dato-caja">
-                            <span class="dato-titulo">Límite Previsto</span>
+                            <span class="dato-titulo">Muga</span>
                             <span class="dato-valor">${limiteHoy.toFixed(2)} €</span>
                         </div>
                         <div class="dato-caja">
-                            <span class="dato-titulo">Desviación</span>
+                            <span class="dato-titulo">Desbideratzea</span>
                             <span class="dato-valor" style="color: ${colorTexto};">${signo}${desviacion.toFixed(2)} €</span>
                         </div>
                         <div class="dato-caja">
-                            <span class="dato-titulo">% Desviación</span>
+                            <span class="dato-titulo">Desbideratzearen %</span>
                             <span class="dato-valor" style="color: ${colorTexto};">${signo}${porcentaje.toFixed(2)} %</span>
                         </div>
                     `;
