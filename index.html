@@ -4,41 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Gastos</title>
-    <!-- Cargamos Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
-        .contenedor-grafico { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        .contenedor-principal { max-width: 800px; margin: 0 auto; }
+        .contenedor-grafico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        
+        /* Estilos para el panel de resumen inferior */
+        .resumen-datos { 
+            display: flex; 
+            justify-content: space-around; 
+            background: white; 
+            padding: 20px; 
+            margin-top: 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .dato-caja { display: flex; flex-direction: column; align-items: center; }
+        .dato-titulo { font-size: 0.85em; color: #666; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;}
+        .dato-valor { font-weight: bold; font-size: 1.4em; }
+        
+        /* Media query para que se vea bien en móviles */
+        @media (max-width: 600px) {
+            .resumen-datos { flex-direction: column; gap: 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <h1>Control de Gastos Mensual</h1>
-    <div class="contenedor-grafico">
-        <canvas id="miGrafico"></canvas>
+    <div class="contenedor-principal">
+        <h1>Control de Gastos Mensual</h1>
+        
+        <div class="contenedor-grafico">
+            <canvas id="miGrafico"></canvas>
+        </div>
+
+        <div id="resumen" class="resumen-datos"></div>
     </div>
 
     <script>
-        // Leer el JSON generado por Python
         fetch('data.json')
             .then(response => response.json())
             .then(data => {
                 
-                // 1. Crear el eje X (Días del 1 al total del mes)
+                // 1. Cálculos base (Línea ideal y Eje X)
                 const dias = Array.from({length: data.dias_del_mes}, (_, i) => i + 1);
-
-                // 2. Calcular la Línea Ideal Proporcional
                 const incrementoDiario = data.presupuesto / data.dias_del_mes;
                 const lineaIdeal = dias.map(dia => incrementoDiario * dia);
 
-                // 3. Preparar los datos reales para el gráfico
-                // Chart.js necesita que le digamos el valor (y) para cada día (x)
                 const datosReales = [];
                 data.gastos.forEach(gasto => {
                     datosReales.push({x: gasto.dia, y: gasto.total});
                 });
 
-                // 4. Dibujar el Gráfico
+                // 2. Configurar y dibujar el Gráfico
                 const ctx = document.getElementById('miGrafico').getContext('2d');
                 new Chart(ctx, {
                     type: 'line',
@@ -48,21 +67,51 @@
                             {
                                 label: 'Gasto Real Acumulado',
                                 data: datosReales,
-                                borderColor: 'red',
-                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
                                 borderWidth: 3,
                                 fill: true,
-                                tension: 0.1, // Hace la línea un poco curva
-                                spanGaps: true // Conecta los puntos si hay días en los que no metiste datos
+                                tension: 0.1,
+                                spanGaps: true,
+                                
+                                // Color de los puntos (circulitos) dinámico
+                                pointBackgroundColor: context => {
+                                    const index = context.dataIndex;
+                                    const y = context.dataset.data[index]?.y;
+                                    if (y === undefined) return 'transparent';
+                                    const idealY = lineaIdeal[context.dataset.data[index].x - 1];
+                                    return y > idealY ? '#ff4d4d' : '#00b300';
+                                },
+                                pointBorderColor: context => {
+                                    const index = context.dataIndex;
+                                    const y = context.dataset.data[index]?.y;
+                                    if (y === undefined) return 'transparent';
+                                    const idealY = lineaIdeal[context.dataset.data[index].x - 1];
+                                    return y > idealY ? '#cc0000' : '#008000';
+                                },
+                                
+                                // Color de la línea y el fondo por tramos (segmentos) dinámico
+                                segment: {
+                                    borderColor: ctx => {
+                                        if (!ctx.p1.parsed) return '#00b300';
+                                        const diaIndex = ctx.p1.parsed.x - 1; // Ajustamos al índice del array (0 a 30)
+                                        const ideal = lineaIdeal[diaIndex];
+                                        return ctx.p1.parsed.y > ideal ? 'red' : '#00b300';
+                                    },
+                                    backgroundColor: ctx => {
+                                        if (!ctx.p1.parsed) return 'rgba(0, 179, 0, 0.15)';
+                                        const diaIndex = ctx.p1.parsed.x - 1;
+                                        const ideal = lineaIdeal[diaIndex];
+                                        return ctx.p1.parsed.y > ideal ? 'rgba(255, 0, 0, 0.15)' : 'rgba(0, 179, 0, 0.15)';
+                                    }
+                                }
                             },
                             {
                                 label: 'Ritmo Ideal (Presupuesto)',
                                 data: lineaIdeal,
-                                borderColor: 'green',
-                                borderDash: [5, 5], // Línea punteada
+                                borderColor: '#0055ff', // Línea Azul
+                                borderDash: [5, 5],
                                 borderWidth: 2,
                                 fill: false,
-                                pointRadius: 0 // Oculta los puntitos de esta línea
+                                pointRadius: 0
                             }
                         ]
                     },
@@ -73,6 +122,43 @@
                         }
                     }
                 });
+
+                // 3. Generar la caja de Resumen de Datos
+                if (datosReales.length > 0) {
+                    // Coger siempre el último dato que se haya metido en el CSV
+                    const ultimoDato = datosReales[datosReales.length - 1];
+                    const gastoActual = ultimoDato.y;
+                    const limiteHoy = lineaIdeal[ultimoDato.x - 1]; // Cuánto deberíamos llevar ese día exacto
+                    
+                    const desviacion = gastoActual - limiteHoy;
+                    const porcentaje = (desviacion / limiteHoy) * 100;
+
+                    // Definir los colores si vamos por encima o por debajo
+                    const colorTexto = desviacion > 0 ? 'red' : '#00b300';
+                    const signo = desviacion > 0 ? '+' : ''; // Añadir un '+' si nos pasamos
+
+                    // Inyectar el HTML en la caja
+                    document.getElementById('resumen').innerHTML = `
+                        <div class="dato-caja">
+                            <span class="dato-titulo">Gasto Actual</span>
+                            <span class="dato-valor">${gastoActual.toFixed(2)} €</span>
+                        </div>
+                        <div class="dato-caja">
+                            <span class="dato-titulo">Límite Previsto</span>
+                            <span class="dato-valor">${limiteHoy.toFixed(2)} €</span>
+                        </div>
+                        <div class="dato-caja">
+                            <span class="dato-titulo">Desviación</span>
+                            <span class="dato-valor" style="color: ${colorTexto};">${signo}${desviacion.toFixed(2)} €</span>
+                        </div>
+                        <div class="dato-caja">
+                            <span class="dato-titulo">% Desviación</span>
+                            <span class="dato-valor" style="color: ${colorTexto};">${signo}${porcentaje.toFixed(2)} %</span>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('resumen').innerHTML = '<p style="color:#666;">No hay datos registrados todavía este mes.</p>';
+                }
             });
     </script>
 </body>
