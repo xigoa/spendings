@@ -9,7 +9,6 @@
         body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
         .contenedor-principal { max-width: 800px; margin: 0 auto; }
         
-        /* Nuevo estilo para poner el título y el selector juntos */
         .cabecera { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px; }
         .cabecera select { padding: 8px 15px; font-size: 1.1em; border-radius: 5px; border: 1px solid #ccc; cursor: pointer; }
 
@@ -34,14 +33,9 @@
         .dato-titulo { font-size: 0.85em; color: #666; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;}
         .dato-valor { font-weight: bold; font-size: 1.4em; }
         
-        /* Media query para que se vea bien en móviles */
         @media (max-width: 600px) {
             .cabecera { flex-direction: column; gap: 10px; }
-            
-            /* Hacemos el gráfico más alto en el móvil (proporción 4/3 en lugar de 2/1) */
             .grafico-wrapper { aspect-ratio: 4 / 3; }
-            
-            /* Ajustamos el panel de abajo y achicamos las letras */
             .resumen-datos { flex-direction: column; gap: 10px; padding: 15px; }
             .dato-titulo { font-size: 0.75em; margin-bottom: 4px; }
             .dato-valor { font-size: 1.2em; }
@@ -65,7 +59,7 @@
     </div>
 
     <script>
-        let graficoInstancia = null; // Variable global para guardar el gráfico actual
+        let graficoInstancia = null; 
         let datosGlobales = null;
 
         fetch('data.json')
@@ -74,7 +68,6 @@
                 datosGlobales = data;
                 const selector = document.getElementById('selectorMes');
                 
-                // Rellenar el selector con los meses disponibles (ordenados de más reciente a más antiguo)
                 const meses = Object.keys(data).sort().reverse();
                 
                 if (meses.length === 0) {
@@ -85,15 +78,12 @@
                 meses.forEach(mes => {
                     const option = document.createElement('option');
                     option.value = mes;
-                    // Opcional: Formatear a algo como "2026-05"
                     option.textContent = mes; 
                     selector.appendChild(option);
                 });
 
-                // Dibujar el gráfico del mes más reciente por defecto
                 dibujarGrafico(meses[0]);
 
-                // Escuchar cuando el usuario cambia de mes en el desplegable
                 selector.addEventListener('change', function() {
                     dibujarGrafico(this.value);
                 });
@@ -102,7 +92,6 @@
         function dibujarGrafico(mesSeleccionado) {
             const dataMes = datosGlobales[mesSeleccionado];
             
-            // Si ya hay un gráfico dibujado, lo destruimos para no superponer
             if (graficoInstancia) {
                 graficoInstancia.destroy();
             }
@@ -130,8 +119,8 @@
                             tension: 0.1,
                             spanGaps: true,
 
-                            pointRadius: 2,       // <--- AÑADE ESTO (Tamaño normal más pequeño, por defecto es 3 o 4)
-                            pointHoverRadius: 5,  // <--- AÑADE ESTO (Tamaño al poner el dedo/ratón encima)
+                            pointRadius: 2,       
+                            pointHoverRadius: 5,  
                             
                             pointBackgroundColor: context => {
                                 const index = context.dataIndex;
@@ -164,19 +153,48 @@
                             }
                         },
                         {
-                            label: 'Aurrekontua',
+                            label: 'Aurrekontua', 
                             data: lineaIdeal,
                             borderColor: '#0055ff',
                             borderDash: [5, 5],
                             borderWidth: 2,
                             fill: false,
-                            pointRadius: 0
+                            pointRadius: 0,
+                            hitRadius: 0 // Evita que salga el tooltip al pasar por la línea azul (solo queremos los puntos reales)
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    plugins: {
+                        // AQUÍ ES DONDE ESTÁ LA MAGIA DEL TOOLTIP (HOVER)
+                        tooltip: {
+                            callbacks: {
+                                title: function(context) {
+                                    // Ponemos "Eguna: X" de título en el cuadrito negro
+                                    return 'Eguna: ' + context[0].label;
+                                },
+                                label: function(context) {
+                                    const diaIndex = context.dataIndex;
+                                    const gastoActual = context.parsed.y;
+                                    const limiteHoy = lineaIdeal[diaIndex];
+                                    
+                                    const desviacion = gastoActual - limiteHoy;
+                                    const porcentaje = (desviacion / limiteHoy) * 100;
+                                    const signo = desviacion > 0 ? '+' : ''; 
+
+                                    // Devolvemos un array (lista) de textos, Chart.js los pintará en varias líneas
+                                    return [
+                                        `Egungo gastua: ${gastoActual.toFixed(2)} €`,
+                                        `Muga: ${limiteHoy.toFixed(2)} €`,
+                                        `Desbideratzea: ${signo}${desviacion.toFixed(2)} €`,
+                                        `Desbideratzearen %: ${signo}${porcentaje.toFixed(2)} %`
+                                    ];
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         y: { beginAtZero: true, suggestedMax: dataMes.presupuesto }
                     }
@@ -214,7 +232,6 @@
                     </div>
                 `;
             } else {
-                // He traducido el texto por defecto para que concuerde ;)
                 document.getElementById('resumen').innerHTML = '<p style="color:#666;">Ez dago daturik hilabete honetan.</p>';
             }
         }
