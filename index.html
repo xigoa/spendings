@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Gastos</title>
+    <!-- Cargamos Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
+        .contenedor-grafico { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+    </style>
+</head>
+<body>
+
+    <h1>Control de Gastos Mensual</h1>
+    <div class="contenedor-grafico">
+        <canvas id="miGrafico"></canvas>
+    </div>
+
+    <script>
+        // Leer el JSON generado por Python
+        fetch('data.json')
+            .then(response => response.json())
+            .then(data => {
+                
+                // 1. Crear el eje X (Días del 1 al total del mes)
+                const dias = Array.from({length: data.dias_del_mes}, (_, i) => i + 1);
+
+                // 2. Calcular la Línea Ideal Proporcional
+                const incrementoDiario = data.presupuesto / data.dias_del_mes;
+                const lineaIdeal = dias.map(dia => incrementoDiario * dia);
+
+                // 3. Preparar los datos reales para el gráfico
+                // Chart.js necesita que le digamos el valor (y) para cada día (x)
+                const datosReales = [];
+                data.gastos.forEach(gasto => {
+                    datosReales.push({x: gasto.dia, y: gasto.total});
+                });
+
+                // 4. Dibujar el Gráfico
+                const ctx = document.getElementById('miGrafico').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: dias,
+                        datasets: [
+                            {
+                                label: 'Gasto Real Acumulado',
+                                data: datosReales,
+                                borderColor: 'red',
+                                backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.1, // Hace la línea un poco curva
+                                spanGaps: true // Conecta los puntos si hay días en los que no metiste datos
+                            },
+                            {
+                                label: 'Ritmo Ideal (Presupuesto)',
+                                data: lineaIdeal,
+                                borderColor: 'green',
+                                borderDash: [5, 5], // Línea punteada
+                                borderWidth: 2,
+                                fill: false,
+                                pointRadius: 0 // Oculta los puntitos de esta línea
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true, suggestedMax: data.presupuesto }
+                        }
+                    }
+                });
+            });
+    </script>
+</body>
+</html>
