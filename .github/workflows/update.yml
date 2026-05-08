@@ -1,0 +1,31 @@
+name: Actualizar Datos de Gasto
+
+on:
+  push:
+    paths:
+      - 'gastos.csv' # Solo se ejecuta si cambias este archivo
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Ejecutar script de Python
+        run: python script.py
+
+      - name: Hacer Commit y Push del JSON actualizado
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add data.json
+          # Solo hace commit si hay cambios reales
+          git diff-index --quiet HEAD || git commit -m "Actualizar data.json automáticamente"
+          git push
