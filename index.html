@@ -16,6 +16,7 @@
         .grafico-wrapper {
             position: relative;
             width: 100%;
+            aspect-ratio: 2 / 1; /* Obliga al contenedor a ser siempre el doble de ancho que de alto */
         }
         
         /* Estilos para el panel de resumen inferior */
@@ -126,6 +127,7 @@
                     },
                     options: {
                         responsive: true,
+                        maintainAspectRatio: false, // Apagamos el cálculo interno de Chart.js
                         scales: {
                             y: { beginAtZero: true, suggestedMax: data.presupuesto }
                         }
