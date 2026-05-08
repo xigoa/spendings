@@ -9,6 +9,14 @@
         body { font-family: sans-serif; text-align: center; padding: 20px; background-color: #f4f4f9;}
         .contenedor-principal { max-width: 800px; margin: 0 auto; }
         .contenedor-grafico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+
+        .contenedor-grafico { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);}
+        
+        /* Añade este nuevo bloque: */
+        .grafico-wrapper {
+            position: relative;
+            width: 100%;
+        }
         
         /* Estilos para el panel de resumen inferior */
         .resumen-datos { 
@@ -36,9 +44,10 @@
         <h1>Control de Gastos Mensual</h1>
         
         <div class="contenedor-grafico">
-            <canvas id="miGrafico"></canvas>
+            <div class="grafico-wrapper">
+                <canvas id="miGrafico"></canvas>
+            </div>
         </div>
-
         <div id="resumen" class="resumen-datos"></div>
     </div>
 
