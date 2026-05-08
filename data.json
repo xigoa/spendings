@@ -1,0 +1,19 @@
+{
+    "mes": "2026-05",
+    "dias_del_mes": 31,
+    "presupuesto": 1500.0,
+    "gastos": [
+        {
+            "dia": 1,
+            "total": 35.0
+        },
+        {
+            "dia": 5,
+            "total": 180.0
+        },
+        {
+            "dia": 8,
+            "total": 450.0
+        }
+    ]
+}
