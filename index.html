@@ -34,9 +34,17 @@
         .dato-titulo { font-size: 0.85em; color: #666; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px;}
         .dato-valor { font-weight: bold; font-size: 1.4em; }
         
+        /* Media query para que se vea bien en móviles */
         @media (max-width: 600px) {
-            .resumen-datos { flex-direction: column; gap: 15px; }
             .cabecera { flex-direction: column; gap: 10px; }
+            
+            /* Hacemos el gráfico más alto en el móvil (proporción 4/3 en lugar de 2/1) */
+            .grafico-wrapper { aspect-ratio: 4 / 3; }
+            
+            /* Ajustamos el panel de abajo y achicamos las letras */
+            .resumen-datos { flex-direction: column; gap: 10px; padding: 15px; }
+            .dato-titulo { font-size: 0.75em; margin-bottom: 4px; }
+            .dato-valor { font-size: 1.2em; }
         }
     </style>
 </head>
