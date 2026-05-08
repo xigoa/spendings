@@ -123,12 +123,15 @@
                     labels: dias,
                     datasets: [
                         {
-                            label: 'Gasto Real Acumulado',
+                            label: 'Gastua',
                             data: datosReales,
                             borderWidth: 3,
                             fill: true,
                             tension: 0.1,
                             spanGaps: true,
+
+                            pointRadius: 2,       // <--- AÑADE ESTO (Tamaño normal más pequeño, por defecto es 3 o 4)
+                            pointHoverRadius: 5,  // <--- AÑADE ESTO (Tamaño al poner el dedo/ratón encima)
                             
                             pointBackgroundColor: context => {
                                 const index = context.dataIndex;
@@ -161,7 +164,7 @@
                             }
                         },
                         {
-                            label: 'Ritmo Ideal (Presupuesto)',
+                            label: 'Aurrekontua,
                             data: lineaIdeal,
                             borderColor: '#0055ff',
                             borderDash: [5, 5],
