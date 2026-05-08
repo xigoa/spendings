@@ -176,7 +176,7 @@
                                     return 'Eguna: ' + context[0].label;
                                 },
                                 label: function(context) {
-                                    const diaIndex = context.dataIndex;
+                                    const diaIndex = context.parsed.x - 1;
                                     const gastoActual = context.parsed.y;
                                     const limiteHoy = lineaIdeal[diaIndex];
                                     
