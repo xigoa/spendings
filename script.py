@@ -1,41 +1,41 @@
 import csv
 import json
 import calendar
-from datetime import datetime
+from collections import defaultdict
 
-# 1. Obtener el mes actual
-hoy = datetime.now()
-mes_actual = hoy.strftime('%Y-%m') # Formato: "2026-05"
-dias_del_mes = calendar.monthrange(hoy.year, hoy.month)[1]
+# Usamos un diccionario para agrupar los datos por mes
+datos_por_mes = defaultdict(lambda: {"presupuesto": 0, "gastos": []})
 
-datos_mes = []
-presupuesto_actual = 0
-
-# 2. Leer el CSV
 with open('gastos.csv', mode='r', encoding='utf-8') as file:
     reader = csv.DictReader(file)
     for row in reader:
-        # Filtrar solo los del mes actual
-        if row['Fecha'].startswith(mes_actual):
-            dia = int(row['Fecha'].split('-')[2])
-            total_gasto = float(row['Gasto_A']) + float(row['Gasto_B'])
-            presupuesto_actual = float(row['Presupuesto'])
-            
-            datos_mes.append({
-                "dia": dia,
-                "total": total_gasto
-            })
+        fecha = row['Fecha']
+        mes_anio = fecha[:7]  # Extrae "YYYY-MM" (ej: "2026-05")
+        dia = int(fecha.split('-')[2])
+        
+        total_gasto = float(row['Gasto_A']) + float(row['Gasto_B'])
+        presupuesto = float(row['Presupuesto'])
+        
+        datos_por_mes[mes_anio]["presupuesto"] = presupuesto
+        datos_por_mes[mes_anio]["gastos"].append({
+            "dia": dia,
+            "total": total_gasto
+        })
 
-# 3. Preparar el JSON final
-output = {
-    "mes": mes_actual,
-    "dias_del_mes": dias_del_mes,
-    "presupuesto": presupuesto_actual,
-    "gastos": datos_mes
-}
+# Preparamos el formato final añadiendo los días que tiene cada mes
+output = {}
+for mes, datos in datos_por_mes.items():
+    year, month = map(int, mes.split('-'))
+    dias_del_mes = calendar.monthrange(year, month)[1]
+    
+    output[mes] = {
+        "dias_del_mes": dias_del_mes,
+        "presupuesto": datos["presupuesto"],
+        "gastos": datos["gastos"]
+    }
 
-# 4. Guardar el JSON
+# Guardamos el JSON con todo el histórico
 with open('data.json', 'w', encoding='utf-8') as f:
     json.dump(output, f, indent=4)
 
-print(f"JSON generado para {mes_actual} con éxito.")
+print("JSON histórico generado con éxito.")
