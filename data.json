@@ -47,39 +47,15 @@
     },
     "2026-05": {
         "dias_del_mes": 31,
-        "presupuesto": 1500.0,
+        "presupuesto": 1600.0,
         "gastos": [
             {
                 "dia": 1,
-                "total": 35.0
+                "total": 0.0
             },
             {
-                "dia": 5,
-                "total": 180.0
-            },
-            {
-                "dia": 8,
-                "total": 450.0
-            },
-            {
-                "dia": 12,
-                "total": 480.0
-            },
-            {
-                "dia": 14,
-                "total": 625.0
-            },
-            {
-                "dia": 17,
-                "total": 990.0
-            },
-            {
-                "dia": 20,
-                "total": 1100.0
-            },
-            {
-                "dia": 23,
-                "total": 1200.0
+                "dia": 10,
+                "total": 1117.0
             }
         ]
     }
