@@ -58,5 +58,15 @@
                 "total": 855.0
             }
         ]
+    },
+    "2026-06": {
+        "dias_del_mes": 30,
+        "presupuesto": 1600.0,
+        "gastos": [
+            {
+                "dia": 1,
+                "total": 0.0
+            }
+        ]
     }
 }
