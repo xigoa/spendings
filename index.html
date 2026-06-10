@@ -141,16 +141,16 @@
                             
                             segment: {
                                 borderColor: ctx => {
-                                    if (!ctx.p1.parsed) return '#00b300';
-                                    const diaIndex = ctx.p1.parsed.x - 1;
+                                    if (ctx.p1.parsed.x === undefined) return '#00b300';
+                                    const diaIndex = ctx.p1.parsed.x; // ¡CORREGIDO! Ya no restamos 1
                                     const ideal = lineaIdeal[diaIndex];
-                                    return ctx.p1.parsed.y > ideal ? 'red' : '#00b300';
+                                    return ctx.p1.parsed.y > ideal ? '#ff4d4d' : '#00b300';
                                 },
                                 backgroundColor: ctx => {
-                                    if (!ctx.p1.parsed) return 'rgba(0, 179, 0, 0.15)';
-                                    const diaIndex = ctx.p1.parsed.x - 1;
+                                    if (ctx.p1.parsed.x === undefined) return 'rgba(0, 179, 0, 0.15)';
+                                    const diaIndex = ctx.p1.parsed.x; // ¡CORREGIDO! Ya no restamos 1
                                     const ideal = lineaIdeal[diaIndex];
-                                    return ctx.p1.parsed.y > ideal ? 'rgba(255, 0, 0, 0.15)' : 'rgba(0, 179, 0, 0.15)';
+                                    return ctx.p1.parsed.y > ideal ? 'rgba(255, 77, 77, 0.15)' : 'rgba(0, 179, 0, 0.15)';
                                 }
                             }
                         },
@@ -162,7 +162,7 @@
                             borderWidth: 2,
                             fill: false,
                             pointRadius: 0,
-                            hitRadius: 0 // Evita que salga el tooltip al pasar por la línea azul (solo queremos los puntos reales)
+                            hitRadius: 0
                         }
                     ]
                 },
@@ -170,15 +170,13 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        // AQUÍ ES DONDE ESTÁ LA MAGIA DEL TOOLTIP (HOVER)
                         tooltip: {
                             callbacks: {
                                 title: function(context) {
-                                    // Ponemos "Eguna: X" de título en el cuadrito negro
                                     return 'Eguna: ' + context[0].label;
                                 },
                                 label: function(context) {
-                                    const diaIndex = context.parsed.x - 1;
+                                    const diaIndex = context.parsed.x; // ¡CORREGIDO! Para que el cuadrito negro sea 100% exacto
                                     const gastoActual = context.parsed.y;
                                     const limiteHoy = lineaIdeal[diaIndex];
                                     
@@ -186,7 +184,6 @@
                                     const porcentaje = (desviacion / limiteHoy) * 100;
                                     const signo = desviacion > 0 ? '+' : ''; 
 
-                                    // Devolvemos un array (lista) de textos, Chart.js los pintará en varias líneas
                                     return [
                                         `Egungo gastua: ${gastoActual.toFixed(2)} €`,
                                         `Muga: ${limiteHoy.toFixed(2)} €`,
@@ -203,7 +200,7 @@
                 }
             });
 
-            // Actualizar la caja de resumen
+            // Actualizar la caja de resumen inferior
             if (datosReales.length > 0) {
                 const ultimoDato = datosReales[datosReales.length - 1];
                 const gastoActual = ultimoDato.y;
@@ -212,7 +209,7 @@
                 const desviacion = gastoActual - limiteHoy;
                 const porcentaje = (desviacion / limiteHoy) * 100;
 
-                const colorTexto = desviacion > 0 ? 'red' : '#00b300';
+                const colorTexto = desviacion > 0 ? '#ff4d4d' : '#00b300';
                 const signo = desviacion > 0 ? '+' : ''; 
 
                 document.getElementById('resumen').innerHTML = `
