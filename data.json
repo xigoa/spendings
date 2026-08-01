@@ -57,13 +57,13 @@
             }
         ]
     },
-    "2026-07": {
+    "2026-08": {
         "dias_del_mes": 31,
-        "presupuesto": 4000.0,
+        "presupuesto": 1800.0,
         "gastos": [
             {
-                "dia": 15,
-                "total": 570.0
+                "dia": 1,
+                "total": 43.0
             }
         ]
     }
