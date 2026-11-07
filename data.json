@@ -26,13 +26,7 @@
             {
                 "dia": 6,
                 "total": 528.0
-            }
-        ]
-    },
-    "2016-11": {
-        "dias_del_mes": 30,
-        "presupuesto": 2100.0,
-        "gastos": [
+            },
             {
                 "dia": 7,
                 "total": 651.0
